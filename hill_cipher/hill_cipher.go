@@ -1,3 +1,8 @@
+// Program Name: hill_cipher.go
+// Description: This program implments hill's cipher in GO
+// Author: Max Ceban
+// Date: 28/09/2025
+
 package main
 
 import "fmt"
@@ -57,7 +62,7 @@ func multiplyMatrix(key [][]int, text [][]int) [][]int {
 func modInverse(a, m int) int{
 	a = a % m
 	for x := 1; x < m; x++{
-		if (a*x) % m == 1{
+		if (a * x) % m == 1{
 			return x
 		}
 	}
@@ -86,6 +91,7 @@ func inverseKeyMatrix(key [][]int) [][]int {
 	// Find the modular multiplicative inverse of the determinant
 	// such that (determinant * determinant_inverse) ≡ 1 (mod 26).
 	determinant_inverse := modInverse(determinant, 26)
+	fmt.Printf("\nMod Inverse of the determinant: %d\n", determinant_inverse)
 	if determinant_inverse == -1 {
 		// If there is no modular inverse, the key matrix cannot be used to decrypt.
 		panic("Key Matrix is not invertible modulo 26!")
