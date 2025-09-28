@@ -1,0 +1,84 @@
+c = (p+k) mod 26
+p = (c-k) mod 26
+
+c = ciphertext letter
+p = plaintext letter
+k = key letter
+mod 26 = wrap around the alphabet (A=0, B=1, ..., Z=25)
+
+Example:
+Plaintext:  ATTACKATDAWN
+Key:        LEMONLEMONLE
+Ciphertext: LXFOPVEFRNHR
+
+The key is repeated to match the length of the plaintext.
+
+Convert letters to number - ASCII values:
+A=0, B=1, C=2, D=3, E=4, F=5, G=6, H=7, I=8, J=9, K=10, L=11, M=12, N=13, O=14, P=15, Q=16, R=17, S=18, T=19, U=20, V=21, W=22, X=23, Y=24, Z=25
+
+In ASCII
+A = 65, B = 66, C = 67, D = 68, E = 69, F = 70, G = 71, H = 72, I = 73, J = 74, K = 75, L = 76, M = 77, N = 78, O = 79, P = 80, Q = 81, R = 82, S = 83, T = 84, U = 85, V = 86, W = 87, X = 88, Y = 89, Z = 90
+
+a = 97, b = 98, c = 99, d = 100, e = 101, f = 102, g = 103, h = 104, i = 105, j = 106, k = 107, l = 108, m = 109, n = 110, o = 111, p = 112, q = 113, r = 114, s = 115, t = 116, u = 117, v = 118, w = 119, x = 120, y = 121, z = 122
+
+Encryption:
+
+Explanation:
+A(0) + L(11) = L(11)
+T(19) + E(4) = X(23)
+T(19) + M(12) = F(5)
+A(0) + O(14) = O(14)
+C(2) + N(13) = P(15)
+K(10) + L(11) = V(21)
+A(0) + E(4) = E(4)
+T(19) + M(12) = F(5)
+D(3) + O(14) = R(17)
+A(0) + N(13) = N(13)
+W(22) + L(11) = H(7)
+N(13) + E(4) = R(17)
+
+Decryption:
+L(11) - L(11) = A(0)
+X(23) - E(4) = T(19)
+F(5) - M(12) = T(19)
+O(14) - O(14) = A(0)
+P(15) - N(13) = C(2)
+V(21) - L(11) = K(10)
+E(4) - E(4) = A(0)
+F(5) - M(12) = T(19)
+R(17) - O(14) = D(3)
+N(13) - N(13) = A(0)
+H(7) - L(11) = W(22)
+R(17) - E(4) = N(13)
+
+Note: If subtraction results in a negative number, add 26 to wrap around the alphabet.
+
+For example:
+A(0) - L(11) = -11 + 26 = 15 = P(15)
+
+
+Pseudocode for Vigenère Cipher:
+
+1. Let the ciphertext be an empty string.
+2. Let the key be a string of letters (A-Z).
+3. Let the plaintext be the input string of letters (A-Z).
+
+// Generate the key
+4. Repeat the key to match the length of the plaintext.
+   a. If the length of the key is less than the length of the plaintext,
+      repeat the key until it matches the length of the plaintext.
+    b. If the length of the key is greater than the length of the plaintext,
+      truncate the key to match the length of the plaintext.
+
+5. For each letter in the plaintext:
+   a. Convert the plaintext letter to its corresponding number (A=0, B=1, ..., Z=25).
+   b. Convert the corresponding key letter to its corresponding number (A=0, B=1, ..., Z=25).
+   c. Calculate the ciphertext letter number using the formula:
+      c = (p + k) mod 26
+    d. Convert the ciphertext letter number back to a letter (0=A, 1=B, ..., 25=Z).
+    e. Append the ciphertext letter to the ciphertext string.
+6. Return the ciphertext string.
+
+base = ord('A')  # or ord('a') for lowercase
+shift = keys[i % len(key)]
+text = (text + shift - base ) % 26 + base
