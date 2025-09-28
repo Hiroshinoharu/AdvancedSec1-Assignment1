@@ -36,7 +36,7 @@ func multiplyMatrix(key [][]int, text [][]int) [][]int {
 		{0},
 		{0},
 	}
-	// Does matrix multiplication 
+	// Does matrix multiplication (ROW X COLUMN)
 	for i := 0; i < 2; i++ {
 		for j := 0; j < 1; j++ {
 			sum := 0
@@ -50,6 +50,10 @@ func multiplyMatrix(key [][]int, text [][]int) [][]int {
 }
 
 // Find modular inverse of a number modulo m
+// modInverse computes the modular multiplicative inverse of 'a' under modulo 'm'.
+// It returns an integer 'x' such that (a * x) % m == 1, if such an integer exists.
+// If the modular inverse does not exist, the function returns -1.
+// This function uses a brute-force approach and is suitable for small values of 'm'.
 func modInverse(a, m int) int{
 	a = a % m
 	for x := 1; x < m; x++{
@@ -60,38 +64,50 @@ func modInverse(a, m int) int{
 	return -1
 }
 
-// Compute inverse key matrix modulo 26
-func inverseKeyMatrix(key [][]int) [][]int{
-	// Get the key values for the formula
+// inverseKeyMatrix computes the modular inverse of a 2×2 key matrix
+// used in a Hill cipher. The result is the matrix K⁻¹ such that
+// (K * K⁻¹) ≡ I (mod 26). It panics if the key matrix is not invertible.
+func inverseKeyMatrix(key [][]int) [][]int {
+	// Extract the 2x2 matrix elements:
+	//   | a  b |
+	//   | c  d |
 	a, b := key[0][0], key[0][1]
 	c, d := key[1][0], key[1][1]
 
-	// Calculate the determinant
+	// Compute the determinant: det = a*d - b*c
+	// This value must be coprime with 26 for the matrix to be invertible mod 26.
 	determinant := (a*d - b*c) % 26
-	// Ensures the deteminant is positive
-	if determinant < 0{
+
+	// Ensure the determinant is positive (mod 26 should be in [0,25])
+	if determinant < 0 {
 		determinant += 26
 	}
 
-	// Gets the inverse of the determinant 
+	// Find the modular multiplicative inverse of the determinant
+	// such that (determinant * determinant_inverse) ≡ 1 (mod 26).
 	determinant_inverse := modInverse(determinant, 26)
-	if determinant_inverse == -1{
-		panic("Key Matrix is not invertiable modulo 26!!!!!")
+	if determinant_inverse == -1 {
+		// If there is no modular inverse, the key matrix cannot be used to decrypt.
+		panic("Key Matrix is not invertible modulo 26!")
 	}
 
-	// Gets the inverse key matrix
+	// Apply the formula for the inverse of a 2×2 matrix:
+	// K⁻¹ = (det⁻¹) * [ d  -b
+	//                   -c  a ]  (all calculations mod 26)
 	inverseKeyMatrix := [][]int{
 		{d * determinant_inverse % 26, (-b) * determinant_inverse % 26},
 		{(-c) * determinant_inverse % 26, a * determinant_inverse % 26},
 	}
 
-	// Make all elements positive modulo 26
-	for i := range inverseKeyMatrix{
-		for j := range inverseKeyMatrix[i]{
+	// Convert any negative numbers into their positive modular equivalents
+	// so every element is between 0 and 25.
+	for i := range inverseKeyMatrix {
+		for j := range inverseKeyMatrix[i] {
 			inverseKeyMatrix[i][j] = (inverseKeyMatrix[i][j] + 26) % 26
 		}
 	}
 
+	// Return the 2×2 inverse key matrix mod 26.
 	return inverseKeyMatrix
 }
 
@@ -150,6 +166,7 @@ func decryptHillCipher(cipher_text string, key string) string{
 		for i := 0; i < 2; i++{
 			textMatrix[i][0] = int(unicode.ToUpper(cipheRunes[b+i])) - 65
 		}
+		// Gets the plain text matrix to decrypt 
 		plain := multiplyMatrix(inverseKey, textMatrix)
 		// Fill the result string
 		for i := 0; i < 2; i++{
